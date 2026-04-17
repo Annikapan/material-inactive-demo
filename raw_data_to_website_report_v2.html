@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日本物料失活识别与补铺执行</title>
+  <style>
+    :root{--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#1d4ed8;--bg:#f8fafc;--card:#fff;--radius:16px;--shadow:0 4px 20px rgba(15,23,42,.06)}
+    *{box-sizing:border-box;margin:0}
+    body{font:13px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;background:var(--bg);color:var(--ink)}
+    .page{max-width:1100px;margin:0 auto;padding:28px 24px}
+
+    /* Header */
+    .header{text-align:center;margin-bottom:28px}
+    .header h1{font-size:26px;margin-bottom:6px}
+    .header p{color:var(--muted);font-size:13px}
+    .header a{display:inline-block;margin-top:12px;padding:8px 20px;background:var(--brand);color:#fff;border-radius:999px;text-decoration:none;font-weight:700;font-size:12px}
+
+    /* KPI strip */
+    .kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .kpi-strip .k{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:var(--shadow)}
+    .kpi-strip .k .n{font-size:24px;font-weight:800}
+    .kpi-strip .k .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+
+    /* Section */
+    .sec{margin-bottom:24px}
+    .sec h2{font-size:18px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+
+    /* Flow */
+    .flow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px}
+    .flow .f{flex:1;min-width:140px;padding:12px 14px;background:var(--card);border:1px solid var(--line);position:relative;font-size:12px}
+    .flow .f:first-child{border-radius:var(--radius) 0 0 var(--radius)}
+    .flow .f:last-child{border-radius:0 var(--radius) var(--radius) 0}
+    .flow .f+.f{border-left:0}
+    .flow .f .num{font-size:10px;font-weight:800;color:var(--brand)}
+    .flow .f .title{font-weight:700;margin:2px 0}
+    .flow .f .tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700;margin-top:4px}
+    .tag.ai{background:#dbeafe;color:#1d4ed8}
+    .tag.manual{background:#fef3c7;color:#92400e}
+    .flow .arrow{display:flex;align-items:center;font-size:16px;color:var(--line);padding:0 2px;flex-shrink:0}
+
+    /* Rules table */
+    .rules-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+    .rules-table th{background:#f1f5f9;text-align:left;padding:8px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+    .rules-table td{padding:8px 12px;border-top:1px solid var(--line);vertical-align:top}
+    .rules-table tr:hover{background:#f8fafc}
+    .rules-table .cat{font-weight:700;color:var(--brand);white-space:nowrap}
+
+    /* Callout */
+    .callout{padding:12px 14px;border-radius:12px;font-size:12px;line-height:1.65;margin-top:12px}
+    .callout.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}
+    .callout strong{font-weight:700}
+
+    /* Priority */
+    .pri-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pri{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+    .pri .badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:99px;margin-bottom:6px}
+    .pri .badge.p0{background:#fee2e2;color:#991b1b}
+    .pri .badge.p1{background:#fef3c7;color:#92400e}
+    .pri .desc{font-size:12px;color:var(--muted)}
+
+    /* Delivery */
+    .delivery{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);font-size:12px}
+    .delivery a{color:var(--brand);font-weight:700}
+
+    @media(max-width:720px){
+      .page{padding:20px 16px}
+      .kpi-strip,.pri-grid{grid-template-columns:1fr 1fr}
+      .flow{flex-wrap:wrap;gap:8px}
+      .flow .f{min-width:100%;border-radius:var(--radius)!important}
+      .flow .f+.f{border-left:1px solid var(--line)}
+      .flow .arrow{display:none}
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>日本物料失活识别与补铺执行</h1>
+    <p>从原始数据到服务商可直接使用的巡铺网站，全流程展示</p>
+    <a href="https://annikapan.github.io/supplier-visit-map/" target="_blank" rel="noreferrer">查看最终网站 →</a>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="k"><div class="l">原始数据</div><div class="n">46,952</div></div>
+    <div class="k"><div class="l">去重后点位</div><div class="n">26,275</div></div>
+    <div class="k"><div class="l">补铺执行池</div><div class="n">2,127</div></div>
+    <div class="k"><div class="l">已上线</div><div class="n">P0 588 · P1 1,539</div></div>
+  </div>
+
+  <!-- 流程 -->
+  <div class="sec">
+    <h2>处理流程</h2>
+    <div class="flow">
+      <div class="f"><div class="num">01</div><div class="title">导出原始数据</div>46,952 条物料记录<div class="tag manual">人工</div></div>
+      <div class="arrow">→</div>
+      <div class="f"><div class="num">02</div><div class="title">地址解析与打标</div>提取都道府县/行政区，匹配激励范围<div class="tag ai">AI</div></div>
+      <div class="arrow">→</div>
+      <div class="f"><div class="num">03</div><div class="title">扫码防重</div>近 60 天有扫码 → 排除<div class="tag ai">AI</div></div>
+      <div class="arrow">→</div>
+      <div class="f"><div class="num">04</div><div class="title">失活识别</div>物料级 + 点位级双层判断<div class="tag ai">AI</div></div>
+      <div class="arrow">→</div>
+      <div class="f"><div class="num">05</div><div class="title">去重与筛选</div>同一个服务商下同一家门店，只派一张补铺单<div class="tag ai">AI</div></div>
+      <div class="arrow">→</div>
+      <div class="f"><div class="num">06</div><div class="title">地图与网站</div>P0 町丁目级精细落点<div class="tag ai">AI</div></div>
+    </div>
+  </div>
+
+  <!-- 判定标准 -->
+  <div class="sec">
+    <h2>失活判定标准</h2>
+    <table class="rules-table">
+      <thead><tr><th>层级</th><th>状态</th><th>条件</th><th>处理方式</th></tr></thead>
+      <tbody>
+        <tr><td class="cat" rowspan="4">物料级<br><span style="font-weight:400;color:var(--muted);font-size:11px">看单个物料<br>最近一次扫码时间</span></td><td><strong>活跃</strong></td><td>最近 60 天内有人扫过</td><td>正常，不处理</td></tr>
+        <tr><td><strong>预警</strong></td><td>61–120 天没人扫</td><td>需要去门店确认</td></tr>
+        <tr><td><strong>疑似失活</strong></td><td>超过 120 天没人扫</td><td>进入补铺池</td></tr>
+        <tr><td><strong>未扫码</strong></td><td>贴上去后从来没人扫过</td><td>结合绑码时间判断</td></tr>
+        <tr><td class="cat" rowspan="4">点位级<br><span style="font-weight:400;color:var(--muted);font-size:11px">按门店汇总<br>任一物料活跃<br>则整店不补铺</span></td><td><strong>活跃点位</strong></td><td>门店内至少 1 张物料近 60 天被扫</td><td>不补铺</td></tr>
+        <tr><td><strong>观察期</strong></td><td>全部未被扫，但贴上去不到 30 天</td><td>暂不补铺，先观察</td></tr>
+        <tr><td><strong>预警点位</strong></td><td>全部超 60 天未扫，未超 120 天</td><td>先确认门店是否营业</td></tr>
+        <tr><td><strong>疑似失活</strong></td><td>全部超 120 天未扫，或全部未扫且贴了超 30 天</td><td>需要补铺</td></tr>
+        <tr><td class="cat" rowspan="3">防重复<br><span style="font-weight:400;color:var(--muted);font-size:11px">避免重复派单</span></td><td><strong>扫码防重</strong></td><td>近 60 天有扫码</td><td>不进补铺池</td></tr>
+        <tr><td><strong>地址去重</strong></td><td>同一个服务商下的同一家门店</td><td>同一批只派一张单，不会给同一家店发两次</td></tr>
+        <tr><td><strong>补铺后回查</strong></td><td>补铺后 7/14/30 天检查扫码</td><td>30 天无新扫码才允许再派</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout green">
+      <strong>阈值怎么来的？</strong><br><br>
+      <strong>① 看数据分布</strong><br>
+      对 46,952 条物料的扫码记录做分布统计，发现三个明显的群体：<br>
+      · <strong>63.8%</strong> 的物料从来没人扫过（零激活）<br>
+      · <strong>17.2%</strong> 的物料超过 120 天没人扫（长期休眠）<br>
+      · 仅 <strong>13.4%</strong> 的物料在近 60 天内有人扫（真正活跃）<br>
+      60 天和 120 天正好是数据中的两个自然断层——不是拍脑袋定的数字。<br><br>
+      <strong>② 为什么是这两个数字</strong><br>
+      · 60 天 ≈ 2 个月：一个合理的扫码周期，超过这个时间没人扫说明可能有问题<br>
+      · 120 天 ≈ 4 个月：能跨过一个完整的旅游淡旺季，排除季节性波动的干扰<br>
+      · 30 天观察期：给新贴上去的物料留出被用户发现和使用的窗口<br><br>
+      <strong>③ 交叉验证</strong><br>
+      · UV（扫码人数）中位数为 0 → 说明不能只看 UV，必须结合扫码时间<br>
+      · 同一门店贴 2 张物料是常态，全部失活的仅 179 家 → 说明多物料不等于重复<br>
+      · 39% 的疑似失活物料绑码超过 1 年 → 说明这是长期积累的存量问题，不是突发的<br>
+      · 对比服务商历史 77 条补铺单，仅 <strong>9.1%</strong> 真正命中了失活点位 → 其余都是"看到没贴就去贴"，说明按数据筛比人工判断更准
+    </div>
+  </div>
+
+  <!-- 优先级 + 交付 -->
+  <div class="sec">
+    <h2>补铺优先级与交付</h2>
+    <div class="pri-grid" style="margin-bottom:12px">
+      <div class="pri">
+        <div class="badge p0">P0 · 588 条</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px">激励范围内 + 疑似失活 + 门店唯一物料</div>
+        <div class="desc">这张物料失活了，门店就没有支付入口了，必须优先补上</div>
+      </div>
+      <div class="pri">
+        <div class="badge p1">P1 · 1,539 条</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px">激励范围内 + 疑似失活 + 门店多张物料全失活</div>
+        <div class="desc">虽然贴了多张，但全都超过 120 天没人扫了，需要补铺恢复</div>
+      </div>
+    </div>
+    <div class="delivery">
+      <strong>最终交付：</strong><a href="https://annikapan.github.io/supplier-visit-map/" target="_blank">服务商巡铺网站</a>　·　多人协作在线同步　·　点击直接跳转 Google 导航
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
